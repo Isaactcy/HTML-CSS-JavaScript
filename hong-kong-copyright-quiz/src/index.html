@@ -1,0 +1,434 @@
+<!--CSS--> 
+<link href="https://fonts.googleapis.com/css?family=Open Sans" rel="stylesheet" />
+<style type="text/css">
+body {
+    background-color: #0EA8FF;
+    font-family: Open Sans;
+    text-align: center;
+}
+h1 {
+    color: #FFD422;
+    font-weight: 900;
+    font-size: 2em;
+}
+.faded {
+    color: #FFF;
+}
+#quiz-counter {
+    color: #FFD422;
+    font-weight: 800;
+    display: inline-block;
+    margin: 7em 0 0.2em 0;
+}
+.quiz-container {
+    max-width: 60%;
+    margin: auto;
+}
+.quiz-container a {
+    text-decoration: none;
+    color: auto;
+    text-align: center;
+}
+#quiz-header {
+    margin: auto;
+    text-align: center;
+    color: #FFF;
+    max-width: 60%;
+    font-weight: 100
+}
+#quiz-start-screen, #quiz-results-screen {
+    margin-top: 10em;
+    text-align: center;
+    color: #FFF;
+}
+.question {
+    font-size: 1.5em;
+    line-height: 1.2em;
+    word-spacing: normal;
+    font-weight: bold;
+    color: #FFF;
+    margin-bottom: 2em;
+}
+.answers {
+    list-style: none;
+    padding: 0;
+}
+.answers a {
+    padding: 0.5em 0.5em;
+    margin-bottom: 0.5em;
+    background: #fff;
+    border: 0px solid #BBBBBB;
+    border-radius: 50px;
+    text-align: center;
+    color: #000;
+    font-size: 1em;
+    width: 50%;
+    display: inline-block;
+}
+.answers a.correct {
+    background: #94D58D;
+}
+.answers a.incorrect {
+    background: #DF9797;
+}
+.answers a.correct, .answers a.incorrect {
+    color: #fff;
+}
+#quiz-controls {
+    background: #F5F7B9;
+    padding: 0.75em 0.5em 0.5em;
+    text-align: center;
+    border: 0px solid #BBBBBB;
+    border-radius: 10px;
+    margin: auto;
+    max-width: 50%;
+}
+#quiz-response {
+    font-size: 1em;
+    margin: 1em;
+    text-align: justify;
+}
+#quiz-results {
+    font-size: 1em;
+    text-align: center;
+}
+#quiz-buttons a, .quiz-container .quiz-button {
+    background: #FFC600;
+    width: 90px;
+    height: 90px;
+    line-height: 90px;
+    display: inline-block;
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    border-radius: 50%;
+    border: 0px solid #FFF;
+    text-align: center;
+    vertical-align: middle;
+    color: #FFF;
+    font-weight: 800;
+}
+/* Quiz State Overrides */
+
+.quiz-results-state #quiz-controls {
+    background: none;
+    padding: 0;
+}
+.quiz-results-state #quiz-buttons a {
+    background: #FFC600;
+    color: #FFF;
+    font-weight: 800;
+}
+/*alert banner*/
+.alert {
+    padding: 20px;
+    background-color: #f44336;
+    color: white;
+    opacity: 1;
+    transition: opacity 0.6s;
+    margin-bottom: 15px;
+}
+.alert.warning {
+    background-color: #ff9800;
+}
+.closebtn {
+    margin-left: 15px;
+    color: white;
+    font-weight: bold;
+    float: right;
+    font-size: 22px;
+    line-height: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.closebtn:hover {
+    color: black;
+}
+</style>
+</head>
+<body>
+<div class="alert warning"> <span class="closebtn">&times;</span> <strong>Info!</strong> Source of Content: <a href="https://hkbu.libguides.com/copyright/overview" target="_blank">HKBU | Copyright & Copywrong: Knowing the difference: Overview</a> </div>
+<h1>Test your &copy; Intelligence with these 10 short quizzes!</h1>
+<div id="quiz">
+  <div id="quiz-header">This quiz aims to provide general answers to common questions and cannot be treated as legal advice. For more indepth intellectual property enquiries, please feel free to contact the Library or the Knowledge Transfer Office to arrange a consultation.</div>
+  <div id="quiz-start-screen">
+    <p><a class="quiz-button" href="#" id="quiz-start-btn">Start</a></p>
+  </div>
+</div>
+</body>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script type="text/javascript">
+	
+	! function(a, b, c, d) {
+    "use strict";
+    a.quiz = function(b, d) {
+        var e = this;
+        e.$el = a(b), e.$el.data("quiz", e), e.options = a.extend(a.quiz.defaultOptions, d);
+        var f = e.options.questions,
+            g = f.length,
+            h = e.options.startScreen,
+            i = e.options.startButton,
+            j = e.options.homeButton,
+            k = e.options.resultsScreen,
+            l = e.options.gameOverScreen,
+            m = 1,
+            n = 0,
+            o = !1;
+        e.methods = {
+            init: function() {
+                e.methods.setup(), a(c).on("click", i, function(a) {
+                    a.preventDefault(), e.methods.start()
+                }), a(c).on("click", j, function(a) {
+                    a.preventDefault(), e.methods.home()
+                }), a(c).on("click", ".answers a", function(a) {
+                    a.preventDefault(), e.methods.answerQuestion(this)
+                }), a(c).on("click", "#quiz-next-btn", function(a) {
+                    a.preventDefault(), e.methods.nextQuestion()
+                }), a(c).on("click", "#quiz-finish-btn", function(a) {
+                    a.preventDefault(), e.methods.finish()
+                }), a(c).on("click", "#quiz-restart-btn, #quiz-retry-btn", function(a) {
+                    a.preventDefault(), e.methods.restart()
+                })
+            },
+            setup: function() {
+                var b = "";
+                e.options.counter && (b += '<div id="quiz-counter"></div>'), b += '<div id="questions">', a.each(f, function(c, d) {
+                    b += '<div class="question-container">', b += '<p class="question">' + d.q + "</p>", b += '<ul class="answers">', a.each(d.options, function(a, c) {
+                        b += '<li><a href="#" data-index="' + a + '">' + c + "</a></li>"
+                    }), b += "</ul>", b += "</div>"
+                }), b += "</div>", 0 === a(k).length && (b += '<div id="' + k.substr(1) + '">', b += '<p id="quiz-results"></p>', b += "</div>"), b += '<div id="quiz-controls">', b += '<p id="quiz-response"></p>', b += '<div id="quiz-buttons">', b += '<a href="#" id="quiz-next-btn">Next</a>', b += '<a href="#" id="quiz-finish-btn">Finish</a>', b += '<a href="#" id="quiz-restart-btn">Restart</a>', b += "</div>", b += "</div>", e.$el.append(b).addClass("quiz-container quiz-start-state"), a("#quiz-counter").hide(), a(".question-container").hide(), a(l).hide(), a(k).hide(), a("#quiz-controls").hide()
+            },
+            start: function() {
+                e.$el.removeClass("quiz-start-state").addClass("quiz-questions-state"), a(h).hide(), a("#quiz-controls").hide(), a("#quiz-finish-btn").hide(), a("#quiz-restart-btn").hide(), a("#questions").show(), a("#quiz-counter").show(), a(".question-container:first-child").show().addClass("active-question"), e.methods.updateCounter()
+            },
+            answerQuestion: function(b) {
+                if (!o) {
+                    o = !0;
+                    var c = a(b),
+                        d = "",
+						
+                        g = c.data("index"),
+                        h = m - 1,
+                        i = f[h].correctIndex;
+                    if (g === i) c.addClass("correct"), d = f[h].correctResponse + '<br></br>'+'<b>See more: </b>'+ f[h].referal, n++;
+                    else if (c.addClass("incorrect"), d = f[h].incorrectResponse + '<br></br>'+'<b>See more: </b>'+ f[h].referal , !e.options.allowIncorrect) return void e.methods.gameOver(d);
+                    a("#quiz-response").html(d), a("#quiz-controls").fadeIn(), "function" == typeof e.options.answerCallback && e.options.answerCallback(m, g === i)
+                }
+            },
+            nextQuestion: function() {
+                o = !1, a(".active-question").hide().removeClass("active-question").next(".question-container").show().addClass("active-question"), a("#quiz-controls").hide(), ++m === g && (a("#quiz-next-btn").hide(), a("#quiz-finish-btn").show()), e.methods.updateCounter(), "function" == typeof e.options.nextCallback && e.options.nextCallback()
+            },
+            gameOver: function(b) {
+                if (0 === a(l).length) {
+                    var c = "";
+                    c += '<div id="' + l.substr(1) + '">', c += '<p id="quiz-gameover-response"></p>', c += '<p><a href="#" id="quiz-retry-btn">Retry</a></p>', c += "</div>", e.$el.append(c)
+                }
+                a("#quiz-gameover-response").html(b), a("#quiz-counter").hide(), a("#questions").hide(), a(l).show()
+            },
+            finish: function() {
+                e.$el.removeClass("quiz-questions-state").addClass("quiz-results-state"), a(".active-question").hide().removeClass("active-question"), a("#quiz-counter").hide(), a("#quiz-response").hide(), a("#quiz-finish-btn").hide(), a("#quiz-next-btn").hide(), a("#quiz-restart-btn").show(), a(k).show(), a("#quiz-results").html("You got " + n + " out of " + g + " correct!"), "function" == typeof e.options.finishCallback && e.options.finishCallback()
+            },
+            restart: function() {
+                e.methods.reset(), e.$el.addClass("quiz-questions-state"), a("#questions").show(), a("#quiz-counter").show(), a(".question-container:first-child").show().addClass("active-question"), e.methods.updateCounter()
+            },
+            reset: function() {
+                o = !1, m = 1, n = 0, a(".answers a").removeClass("correct incorrect"), e.$el.removeClass().addClass("quiz-container"), a("#quiz-restart-btn").hide(), a(l).hide(), a(k).hide(), a("#quiz-controls").hide(), a("#quiz-response").show(), a("#quiz-next-btn").show(), a("#quiz-counter").hide(), a(".active-question").hide().removeClass("active-question")
+            },
+            home: function() {
+                e.methods.reset(), e.$el.addClass("quiz-start-state"), a(h).show(), "function" == typeof e.options.homeCallback && e.options.homeCallback()
+            },
+            updateCounter: function() {
+                var b = e.options.counterFormat.replace("%current", m).replace("%total", g);
+                a("#quiz-counter").html(b)
+            }
+        }, e.methods.init()
+    }, a.quiz.defaultOptions = {
+        allowIncorrect: !0,
+        counter: !0,
+        counterFormat: "%current/%total",
+        startScreen: "#quiz-start-screen",
+        startButton: "#quiz-start-btn",
+        homeButton: "#quiz-home-btn",
+        resultsScreen: "#quiz-results-screen",
+        gameOverScreen: "#quiz-gameover-screen"
+    }, a.fn.quiz = function(b) {
+        return this.each(function() {
+            new a.quiz(this, b)
+        })
+    }
+}(jQuery, window, document);
+	
+</script>
+<script>
+$('#quiz').quiz({
+  //resultsScreen: '#results-screen',
+  //counter: false,
+  //homeButton: '#custom-home',
+	 
+  counterFormat: 'Question %current of %total',
+  questions: [
+ //Question 1 
+	 {
+ 'q': 'In Hong Kong, how long does copyright last after the author dies? ',
+ 'options': [
+        'A. 25 years',
+        'B. 50 years',
+        'C. 70 years'
+           ],
+      'correctIndex':1,
+      'correctResponse': 'Good job! Indeed copyright lasts for the life span of an author plus 50 years for literary, dramatic, musical and artistic works. However, sound recordings and performance will vary.',	 
+	  'incorrectResponse': 'Sorry you got it wrong. Copyright lasts for the life span of an author plus 50 years for literary, dramatic, musical and artistic works. However, sound recordings and performance will vary. ',
+	  'referal': '<a href="http://hkbu.libguides.com/copyright" target="_blank">Q3| Copyright & Copywrong: Knowing the difference: Overview</a>' 
+		
+//Question 2 
+						  
+},
+
+	  {
+ 'q': 'Does copyright extend internationally? ',
+ 'options': [
+        'A. Yes ',
+        'B. No'
+ 		],
+      'correctIndex':0,
+      'correctResponse': 'You got it right! Hong Kong is a member of various international conventions and because most countries in the world are members of these conventions, including Taiwan and China, you\'ll be covered in most cases. The 2 major conventions are:<ol><li>Berne Convention</li><li>Universal Copyright Convention (UCC)</li></ol>Most countries in the world are members of these conventions. ',
+      'incorrectResponse': 'Oh, does this one surprise you? Copyright does extend internationally in most cases because Hong Kong is a member of various international conventions, including Taiwan and China, you\'ll be covered in most cases. The 2 major conventions are:<ol><li>Berne Convention</li><li>Universal Copyright Convention (UCC)</li></ol></li></ol> ',
+	  'referal': '<a href="http://www.clic.org.hk/en/topics/intellectualProperty/copyright/q8.shtml" target="_blank"> Q8| Intellectual Property| CLIC</a>' 
+},
+//Question 3
+{
+ 'q': 'Do I need to register my copyright? ',
+ 'options': [
+        'A. Yes ',
+        'B. No',
+        
+      ],
+      'correctIndex':1,
+      'correctResponse': 'Well done! There are no requirements to register copyright. Works by authors from anywhere in the world, or works first published anywhere in the world, are all eligible for copyright protection in Hong Kong. ',
+      'incorrectResponse': 'You got this one wrong. But aren\'t you happy to hear that there are no requirements for copyright registration? Works by authors from anywhere in the world, or works first published anywhere in the world, are all eligible for copyright protection in Hong Kong. ',
+	  'referal': '<a href="http://hkbu.libguides.com/copyright" target="_blank">Q4| Copyright & Copywrong: Knowing the difference: Overview</a>'
+},
+//Question 4
+	  {
+ 'q': 'Is multimedia work under the same copyright protection as phycial collections?',
+ 'options': [
+        'A. Yes ',
+        'B. No',
+        'C. It depends ',
+     
+      ],
+      'correctIndex':0,
+      'correctResponse': 'Good job! A multimedia work could be textual, audio or visual elements mixed in an electronic form and each is protected on its own. Copying a multimedia work would mean infringing each of the copyright work in the multimedia piece. ',
+      'incorrectResponse': 'Oh, The answer is Yes. A multimedia work enjoys the same protection as other physical collections. It could be textual, audio or visual elements mixed in an electronic form and each is protected on its own. Copying a multimedia work would mean infringing each of the copyright work in the multimedia piece. ',
+      'referal': '<a href="http://hkbu.libguides.com/copyright" target="_blank">Q1| Copyright & Copywrong: Knowing the difference: Overview</a>'
+
+}, 
+//Question 5
+{
+ 'q': 'I\'m eligible for fair dealing exemptions as long as it\'s for educational purpose. ',
+ 'options': [
+        'A. Yes ',
+        'B. No',
+        'C. It depends '
+      
+      ],
+      'correctIndex':2,
+      'correctResponse': 'Good job! Fair dealing exemption applies to both printed and online materials, allowing teachers and students to use reasonable portions of copyright work in a fair manner for teaching and learning. Note however, that there is no prescribed amount on what can be copied. It is not always quantity, but also quality when observing fair dealing. For example, a work will only be infringed if a substantial or important part is taken, such as copying a catchy musical phrase from a song.Apart from four factors determining fair dealing, placing copies of copyright works on the school\'s Intranet for teaching purposes is subject to two further conditions<ol><li>there are technological measures adopted to restrict access to the copies to ensure that they are made available only to persons who need to use them for the purposes of teaching or learning; AND</li><li> the copies are not stored in the Intranet for a period longer than is necessary or, in any event, longer than 12 consecutive months.</li></ol></li></ul>',
+
+      'incorrectResponse': 'Oh no, it does really depend. Apart from the four factors determining fair dealing, placing copies of copyright works on the school\'s Intranet for teaching purposes is subject to two further conditions<ol><li>there are technological measures adopted to restrict access to the copies to ensure that they are made available only to persons who need to use them for the purposes of teaching or learning; AND</li><li> the copies are not stored in the Intranet for a period longer than is necessary or, in any event, longer than 12 consecutive months.</li></ol></li></ul>',
+      'referal': '<a href="http://hkbu.libguides.com/copyright" target="_blank">Q2| Copyright & Copywrong: Knowing the difference: Overview</a>'
+},
+
+//Question 6
+{
+ 'q': 'Can schools show movies without obtaining permission from the copyright owners? ',
+ 'options': [
+        'A. Yes ',
+        'B. No',
+        
+      ],
+      'correctIndex':0,
+      'correctResponse': 'You are right! If showing is for instruction and audience consists of teachers and students and persons directly connected with school activities (including parents and guardians of the students) ',
+      'incorrectResponse': 'A nice surprise right? Actually, you don\'t need any permission if showing is for instruction and audience consists of teachers and students and persons directly connected with school activities (including parents and guardians of the students) ',
+      'referal': '<a href="http://hkbu.libguides.com/copyright/teacher" target="_blank">Q4| Copyright & Copywrong: Knowing the difference: I am a teacher</a>'
+},
+
+//Question 10
+{
+ 'q': 'Can I include copyright contents in my assignments, thesis or dissertation? ',
+ 'options': [
+        'A. Yes ',
+        'B. No ',
+        'C. It depends ',
+     
+ ],
+      'correctIndex':2,
+      'correctResponse': 'You\'re aware there is no clear cut answer aren\'t you? Use of works protected by copyright in your assignments, thesis or dissertation will need either permission or fair dealing justification (see Q2?under Overview Tab). There is no exact rule as to how much you can use but in general, you should keep it to a minimum just to illustrate your points.? ',
+      'incorrectResponse': 'This is a tricky one. It all depends. Use of works protected by copyright in your assignments, thesis or dissertation will need either permission or?fair dealing justification (see Q2?under Overview Tab). There is no exact rule as to how much you can use but in general, you should keep it to a minimum just to illustrate your points. ',
+'referal': '<a href="http://hkbu.libguides.com/copyright/student" target="_blank">Q3| Copyright & Copywrong: Knowing the difference: I am a student</a>' 
+},
+
+//Question 11
+{
+ 'q': 'As a teacher, can I upload copyright works on learning platforms like Moodle, or academic networking sites such as ResearchGate? ',
+ 'options': [
+        'A. Yes ',
+        'B. No ',
+        'C. It depends ',
+        
+      ],
+      'correctIndex':2,
+      'correctResponse': 'Well done! It really depends. Apart from four factors determining fair dealing, placing copies of copyright works on the school\'s Intranet for teaching purposes is subject to two further conditions (section 41A(5)):<ol><li>there are technological measures adopted to restrict access to the copies to ensure that they are made available only to persons who need to use them for the purposes of teaching or learning; AND </li><li>the copies are not stored in the Intranet for a period longer than is necessary or, in any event, longer than 12 consecutive months.</li></ol>',
+	
+      'incorrectResponse': 'This is a hard one. It really depends. Apart from four factors determining fair dealing, placing copies of copyright works on the school\'s Intranet for teaching purposes is subject to two further conditions (section 41A(5)):<ol><li>there are technological measures adopted to restrict access to the copies to ensure that they are made available only to persons who need to use them for the purposes of teaching or learning; AND </li><li>the copies are not stored in the Intranet for a period longer than is necessary or, in any event, longer than 12 consecutive months.</li></ol>',
+'referal': '<a href="http://www.clic.org.hk/en/topics/intellectualProperty/infringement_of_copyright/B/q5.shtml" target="_blank">Q5| A. Will a person infringe the copyright in a work under these scenarios?| CLIC</a>' 
+},
+
+//Question 12
+{
+ 'q': 'As a teacher, can I distribute photocopies of books or journal articles for class discussion? ',
+ 'options': [
+        'A. Yes ',
+        'B. No ',
+        'C. It depends ',
+       
+      ],
+      'correctIndex':0,
+      'correctResponse': 'Yes, you are right! You can do so by relying on section 41A of the Copyright Ordinance, which allows fair dealing with a copyright work by a teacher for the purposes of teaching at school.  ',
+      'incorrectResponse': 'Oh, The answer is yes! You can do so by relying on section 41A of the Copyright Ordinance, which allows fair dealing with a copyright work by a teacher for the purposes of teaching at school.  ',
+'referal': '<a href="http://www.clic.org.hk/en/topics/intellectualProperty/infringement_of_copyright/B/q6.shtml" target="_blank">Q6| A. Will a person infringe the copyright in a work under these scenarios?| CLIC </a>' 
+},
+
+//Question 13
+{
+ 'q': 'Do performers enjoy copyright protection for their performances? ',
+ 'options': [
+        'A. Yes ',
+        'B. No ',
+        'C. It depends ',
+    
+      ],
+      'correctIndex':0,
+      'correctResponse': 'Good job, The answer is A. Yes. Performers enjoy rights regarding their performances under the Copyright Ordinance. The most important rights of a performer are the right to prevent any person from making a video or sound recording of his performance (otherwise than for that person\'s private and domestic use), and the right to prohibit any person from exploiting a video or sound recording of his performance.  ',
+      'incorrectResponse': 'Oh, The answer is A. Yes. Performers enjoy rights regarding their performances under the Copyright Ordinance. The most important rights of a performer are the right to prevent any person from making a video or sound recording of his performance (otherwise than for that person\'s private and domestic use), and the right to prohibit any person from exploiting a video or sound recording of his performance.  ',
+		'referal': '<a href="http://www.clic.org.hk/en/topics/intellectualProperty/copyright/q12.shtml" target="_blank">Q12| A. Will a person infringe the copyright in a work under these scenarios?| CLIC</a>' 
+},
+
+   
+  ]
+});
+
+
+</script>
+<script>
+var close = document.getElementsByClassName("closebtn");
+var i;
+
+for (i = 0; i < close.length; i++) {
+  close[i].onclick = function(){
+    var div = this.parentElement;
+    div.style.opacity = "0";
+    setTimeout(function(){ div.style.display = "none"; }, 600);
+  }
+}
+</script>
